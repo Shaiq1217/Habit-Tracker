@@ -15,24 +15,37 @@ class Habit {
         const pageNumber = parseInt(req.query.page as string) || 1;  
         const size = parseInt(req.query.size as string) || 10;   
 
-        const {data, page, pageSize} = await habitService.getAll(pageNumber, size);
+        const habits = await habitService.getAll(pageNumber, size);
         
-        if (!data || data.length === 0) {
-            return res.status(404).json({ data: [], message: 'No data found' });
+        if (!habits.status) {
+            return res.status(404).json(habits);
         }
 
-        return res.status(200).json({ data, message: 'Success', page, pageSize });
+        return res.status(200).json(habits);
     }
+    
     
     createHabit = async (req: Request, res: Response) => {
         const habit: IHabit = req.body;
         const newHabit = await habitService.create(habit);
+        if(!newHabit.status){
+            return res.status(400).json(newHabit);
+        }
         return res.status(201).json({ data: newHabit, message: 'Habit created' });
     }
     updateHabit = async (req: Request, res: Response) => {
         const habit: IHabit = req.body;
+        const {id} = req.params;
         const updatedHabit = await habitService.update(req.params.id, habit);
         return res.status(200).json({ data: updatedHabit, message: 'Habit updated' });
+    }
+    deleteHabit = async (req: Request, res: Response) => {
+        const habit = await habitService.delete(req.params.id);
+        return res.status(200).json(habit);
+    }
+    deleteAll = async (req: Request, res: Response) => {
+        const habit = await habitService.deleteAll();
+        return res.status(200).json({ data: habit, message: 'All habits deleted' });
     }
 }
 

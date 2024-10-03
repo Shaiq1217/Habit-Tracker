@@ -1,5 +1,6 @@
 
 import HabitModel, { IHabit } from "./models/habit.js";
+import { Types } from "mongoose";
 
 class HabitRepository {
     find = async (id: string) : Promise<IHabit> | null => {
@@ -8,6 +9,13 @@ class HabitRepository {
             return null;
         }
         return habit;
+    }
+    findByUser = async (name: string, userId: string) : Promise<IHabit[]> => {
+        const habits = await HabitModel.find({name, userId});
+        if(!habits){
+            return [];
+        }
+        return habits;
     }
 
     findAll = async (page: number, pageSize: number) : Promise<IHabit[]> => {
@@ -31,9 +39,9 @@ class HabitRepository {
             description: description,
             userId: userId,
             tags: tags,
-            subhabit: subhabit ? subhabit : null
         })
-        return habit.save();
+        const newHabit = await habit.save();
+        return newHabit;
     }
 
     
@@ -42,6 +50,20 @@ class HabitRepository {
         return habit;
     }
 
+    delete = async (id: string) => {
+        const habit = await HabitModel.findById(id);
+        if(!habit){
+            return null;
+        }
+        habit.isDeleted = true;
+        const newHabit = await habit.save();
+        return newHabit;
+    }
+
+    deleteAll = async () => {
+        const habits = await HabitModel.deleteMany({});
+        return habits;
+    }
 }
 
 const habitRepository = new HabitRepository();

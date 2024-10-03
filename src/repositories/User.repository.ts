@@ -1,6 +1,6 @@
 import UserModel, { IUser } from "./models/user.js";
 import _ from 'lodash';
-import {hashSync} from 'bcrypt';
+import { Types } from 'mongoose';
 class User{
     find = async (username: string, email?: string) : Promise<IUser> | null => {
         let user = await UserModel.findOne({ username });
@@ -12,14 +12,13 @@ class User{
         }
         return user;
     }
-    findById = async (id: string) : Promise<IUser> => {
-        const user = await UserModel.findById(id);
+    findById = async (id: string) : Promise<IUser> | null => {
+        const user = await UserModel.findById(id).populate('habits').exec();
         if(!user){
             return null;
         }
-        return user;
+        return user
     }
-    
     findAll = async (page: number, pageSize: number) : Promise<IUser[]> => {
         const users = await UserModel.find({}).skip((page - 1) * pageSize).limit(pageSize);
         if(!users){
@@ -47,13 +46,24 @@ class User{
     }
 
     update = async (id: string, data: IUser) => {
-        
         const user = await UserModel.findByIdAndUpdate(id, data, {
             new: true
             });
         return user.save();
     }
-    
+    addHabit = async (id: string, habitId: string) => {
+        const user = await UserModel.findById(id);
+        if(!user){
+            return null;
+        }
+        if(!Types.ObjectId.isValid(habitId)){
+            return null;
+        }
+        const habitObjectId = new Types.ObjectId(habitId)
+        user.habits.push(habitObjectId);
+        const newUser = await user.save();
+        return newUser;
+    }
     delete = async (id: string) => {
         const user = await UserModel.findById(id);
         if(!user){
