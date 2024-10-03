@@ -1,5 +1,6 @@
 import UserModel, { IUser } from "./models/user.js";
 import _ from 'lodash';
+import {hashSync} from 'bcrypt';
 class User{
     find = async (username: string, email?: string) : Promise<IUser> | null => {
         let user = await UserModel.findOne({ username });
@@ -7,6 +8,13 @@ class User{
             user = await UserModel.findOne({ email });
         }
         if (!user) {
+            return null;
+        }
+        return user;
+    }
+    findById = async (id: string) : Promise<IUser> => {
+        const user = await UserModel.findById(id);
+        if(!user){
             return null;
         }
         return user;
@@ -39,6 +47,7 @@ class User{
     }
 
     update = async (id: string, data: IUser) => {
+        
         const user = await UserModel.findByIdAndUpdate(id, data, {
             new: true
             });
@@ -46,8 +55,13 @@ class User{
     }
     
     delete = async (id: string) => {
-        const user = await UserModel.findByIdAndDelete(id);
-        return user;
+        const user = await UserModel.findById(id);
+        if(!user){
+            return null;
+        }
+        user.isDeleted = true;
+        const newUser = await user.save();
+        return newUser;
     }
 }
 

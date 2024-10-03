@@ -18,9 +18,9 @@ router.get('/me/:username', async (req, res) => {
 router.get('/', async (req, res) => {
     await userController.getAll(req, res);
 });
-// router.get('/:id', async (req, res) => {
-//     await userController.getById(req, res);
-// });
+router.get('/:id', async (req, res) => {
+    await userController.getById(req, res);
+});
 // router.put('/:id', async (req, res) => {
 //     await userController.update(req, res);
 // });

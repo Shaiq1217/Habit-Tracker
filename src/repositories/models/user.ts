@@ -9,6 +9,7 @@ export interface IUser extends Document {
     avatar: string;
     habits: Types.ObjectId[];
     friends: Types.ObjectId[];
+    isDeleted: boolean;
 }
 
 const UserSchema: Schema = new Schema(
