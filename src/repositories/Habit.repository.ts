@@ -10,6 +10,14 @@ class HabitRepository {
         return habit;
     }
 
+    findByName = async (name: string, userId: string) : Promise<IHabit> | null => {
+        const habit = await HabitModel.findOne({name: name, userId: userId});
+        if(!habit){
+            return null;
+        }
+        return habit;
+    }
+
     findAll = async (page: number, pageSize: number) : Promise<IHabit[]> => {
         const habits = await HabitModel.find({}).skip((page - 1) * pageSize).limit(pageSize);
         if(!habits){
@@ -31,7 +39,6 @@ class HabitRepository {
             description: description,
             userId: userId,
             tags: tags,
-            subhabit: subhabit ? subhabit : null
         })
         return habit.save();
     }

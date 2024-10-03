@@ -12,14 +12,13 @@ class User{
         }
         return user;
     }
-    findById = async (id: string) : Promise<IUser> => {
+    findById = async (id: string) : Promise<IUser> | null => {
         const user = await UserModel.findById(id);
         if(!user){
             return null;
         }
-        return user;
+        return user
     }
-    
     findAll = async (page: number, pageSize: number) : Promise<IUser[]> => {
         const users = await UserModel.find({}).skip((page - 1) * pageSize).limit(pageSize);
         if(!users){

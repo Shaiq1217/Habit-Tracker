@@ -86,6 +86,8 @@ class User{
         }
         return {status: true, data: user, message: 'User deleted successfully'};
     }
+    
+    
 }
 
 const userServices = new User();
