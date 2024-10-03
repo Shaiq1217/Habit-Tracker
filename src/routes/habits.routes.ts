@@ -15,10 +15,4 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
     await habitController.updateHabit(req, res);
 });
-router.delete('/:id', async (req: Request, res: Response) => {
-    await habitController.deleteHabit(req, res);
-});
-router.delete('/', async (req: Request, res: Response) => {
-    await habitController.deleteAll(req, res);
-});
 export default router;

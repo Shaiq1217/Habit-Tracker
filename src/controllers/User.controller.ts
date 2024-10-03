@@ -17,7 +17,9 @@ class User{
         if(!userAndToken?.status) return res.status(400).json(userAndToken);
         return res.status(200).json(userAndToken);
     }
-   
+    logout = (req: Request, res: Response) => {
+        throw new Error('Method not implemented.');
+    }
     me = async (req: Request, res: Response) => {
         const {username} = req.params;
         const me = await userServices.me(username);
@@ -38,9 +40,8 @@ class User{
         const {page, pageSize} = req.query;
         const pageInt = parseInt(page as string) || 1;
         const pageSizeInt = parseInt(pageSize as string) || 10; 
-        const detail = req.query.detail as string as unknown as boolean;
-        const allUsers = await userServices.getAll(pageInt, pageSizeInt, detail);
-        if(!allUsers || allUsers.data.data.length === 0){
+        const allUsers = await userServices.getAll(pageInt, pageSizeInt);
+        if(!allUsers || allUsers.data.length === 0){
             return res.status(404).json(allUsers);
         }
         return res.status(200).json(allUsers);
@@ -60,14 +61,6 @@ class User{
             return res.status(400).json(deletedUser);
         }
         return res.status(200).json(deletedUser);
-    }
-    addHabit = async (req: Request, res: Response) => {
-        const {userId, habitId} = req.body;
-        const habit = await userServices.addHabit(userId, habitId);
-        if(!habit.status){
-            return res.status(400).json(habit);
-        }
-        return res.status(200).json(habit);
     }
 }
 

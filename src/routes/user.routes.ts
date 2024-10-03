@@ -9,6 +9,9 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     await userController.login(req, res);
 });
+router.get('/logout', async (req, res) => {
+    await userController.logout(req, res);
+});
 router.get('/me/:username', async (req, res) => {
     await userController.me(req, res);
 });
