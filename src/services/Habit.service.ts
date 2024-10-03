@@ -42,6 +42,7 @@ class HabitService {
         return {data : {habits: sanitizedHabits, page: pageStart, pageSize: totalPageSize}, status: true, message: 'Habits found'};
     }
 
+
     search = async (query: string, page: number, pageSize: number): Promise<IResponse<{habits: IHabit[], page: number, pageSize: number}>> => {
 
         let pageStart = page || 1;
@@ -66,18 +67,30 @@ class HabitService {
         return {data : {habits: sanitizedHabits, page: pageStart, pageSize: totalPageSize}, status: true, message: 'Habits found'};
     }
     create = async (data: IHabit) : Promise<IResponse<IHabit>> => {
+        // check if userID is valid
+        if(!Types.ObjectId.isValid(data.userId)) return {status: false, message: 'Invalid user id'};
+        // check if user exists
         const doesExist = await userServices.getById(data.userId.toString());
+       
         if(!doesExist.status) {
             return {status: false, message: 'User not found'};
         }
-        const doesHabitExist = await habitRepository.findByName(data.name, data.userId.toString());
-        if(doesHabitExist) {
+        // check if habit exists for user
+        const doesHabitExist = await habitRepository.findByUser(data.name, data.userId.toString());
+        if(doesHabitExist.length > 0) {
             return {status: false, message: 'Habit already exists'};
         }
+        // create habit
         const habit = await habitRepository.create(data);
         if(!habit){
             return {status: false, message: 'Habit not created'};
         }
+        // add habit to user
+        const addHabitToUser = await userServices.addHabit(data.userId.toString(), habit._id.toString());
+        if(!addHabitToUser.status) {
+            return {status: false, message: 'Habit not added to user'};
+        }
+        // return habit
         const sanitizedHabits = _.omit(habit.toObject(), ['updatedAt', 'createdAt', 'isDeleted']);
         return {status: true, data: sanitizedHabits, message: 'Habit created successfully'};
     }
@@ -88,11 +101,7 @@ class HabitService {
         if(data.isDeleted){
             return {status: false, message: 'Cannot delete habit'};
         }
-        const doesExist = await userServices.getById(data.userId.toString());
-        if(!doesExist.status) {
-            return {status: false, message: 'User not found'};
-        }
-        const habit = await habitRepository.update(id, data);
+        const habit = await habitRepository.update(id, data); 
         if(!habit){
             return {status: false, message: 'Habit not updated'};
         }
@@ -101,6 +110,21 @@ class HabitService {
         }
         return {status: true, data: habit, message: 'Habit updated successfully'};
     }
+    delete = async (id: string) : Promise<IResponse<IHabit>> => {
+        if (!Types.ObjectId.isValid(id)) {
+            return {status: false, message: 'Invalid id'};
+        }
+        const habit = await habitRepository.delete(id);
+        if(!habit){
+            return {status: false, message: 'Habit not found'};
+        }
+        return {status: true, data: habit, message: 'Habit deleted successfully'};
+    }
+    deleteAll = async () : Promise<IResponse<any>> => {
+        const habits = await habitRepository.deleteAll();
+        return {status: true, data: habits, message: 'Habits deleted successfully'};
+    }
+
 }
 
 const habitService = new HabitService();
