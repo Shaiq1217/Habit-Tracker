@@ -124,7 +124,16 @@ class HabitService {
         const habits = await habitRepository.deleteAll();
         return {status: true, data: habits, message: 'Habits deleted successfully'};
     }
-
+    addSubhabitToHabit = async (habitId: string, subhabitId: string) : Promise<IResponse<IHabit>> => {
+        if (!Types.ObjectId.isValid(habitId) || !Types.ObjectId.isValid(subhabitId)) {
+            return {status: false, message: 'Invalid id'};
+        }
+        const habit = await habitRepository.addSubhabit(habitId, subhabitId);
+        if(!habit){
+            return {status: false, message: 'Subhabit not added to habit'};
+        }
+        return {status: true, data: habit, message: 'Subhabit added to habit successfully'};
+    }
 }
 
 const habitService = new HabitService();

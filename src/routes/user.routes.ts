@@ -3,12 +3,6 @@ import userController from '../controllers/User.controller.js';
 
 const router = Router();
 
-router.post('/register', async (req, res) => {
-    await userController.register(req, res);
-});
-router.post('/login', async (req, res) => {
-    await userController.login(req, res);
-});
 router.get('/me/:username', async (req, res) => {
     await userController.me(req, res);
 });

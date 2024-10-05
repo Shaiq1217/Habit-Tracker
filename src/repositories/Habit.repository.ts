@@ -4,7 +4,7 @@ import { Types } from "mongoose";
 
 class HabitRepository {
     find = async (id: string) : Promise<IHabit> | null => {
-        const habit = await HabitModel.findById(id);
+        const habit = await HabitModel.findById(id).populate('subhabit').exec();
         if(!habit){
             return null;
         }
@@ -64,6 +64,16 @@ class HabitRepository {
         const habits = await HabitModel.deleteMany({});
         return habits;
     }
+    addSubhabit = async (habitId: string, subhabitId: string) => {
+        const habit = await HabitModel.findById(habitId);
+        if(!habit){
+            return null;
+        }
+        const objId = new Types.ObjectId(subhabitId);
+        habit.subhabit.push(objId);
+        const newHabit = await habit.save();
+        return newHabit;
+    };
 }
 
 const habitRepository = new HabitRepository();
