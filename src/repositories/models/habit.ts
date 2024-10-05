@@ -4,7 +4,7 @@ export interface IHabit extends Document {
   name: string;
   description: string;
   tags: string[];
-  subhabit: Types.ObjectId;
+  subhabit: Types.ObjectId[];
   userId: Types.ObjectId;
   isDeleted: boolean;
 }
@@ -16,6 +16,7 @@ const Habit: Schema = new Schema(
     tags: {type: [String], default: []},
     subhabit : {type : [Types.ObjectId], ref: 'SubHabit', default: []},
     userId: {type: Types.ObjectId, required: true, ref: 'User'},
+    completed: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
   },
   {
