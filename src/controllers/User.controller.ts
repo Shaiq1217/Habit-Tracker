@@ -3,21 +3,6 @@ import userServices from '../services/User.service.js';
 import { hashSync } from 'bcrypt';
 
 class User{
-    register = async (req: Request, res: Response) =>{
-        const {email, password, username} = req.body; 
-        const user = await userServices.register(email, password, username);
-        if(!user || !user.status){
-            return res.status(400).json(user);
-        }
-        return res.status(201).json(user);
-    }
-    login = async (req: Request, res: Response) => {
-        const {email, username, password} = req.body;
-        const userAndToken = await userServices.login(email, username, password);
-        if(!userAndToken?.status) return res.status(400).json(userAndToken);
-        return res.status(200).json(userAndToken);
-    }
-   
     me = async (req: Request, res: Response) => {
         const {username} = req.params;
         const me = await userServices.me(username);
@@ -45,6 +30,7 @@ class User{
         }
         return res.status(200).json(allUsers);
     }
+  
     update = async (req: Request, res: Response) => {
         const {id} = req.params;
         const data = req.body;

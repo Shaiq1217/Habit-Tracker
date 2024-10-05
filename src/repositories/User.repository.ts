@@ -13,7 +13,7 @@ class User{
         return user;
     }
     findById = async (id: string) : Promise<IUser> | null => {
-        const user = await UserModel.findById(id).populate('habits').exec();
+        const user = await UserModel.findById(id).populate('habits').populate('friends').exec();
         if(!user){
             return null;
         }
@@ -26,7 +26,7 @@ class User{
         }
         return users;
     }
-
+    
     search = async (query: string, page: number, pageSize: number) : Promise<IUser[]> => {
         const users = await UserModel.find({$text: {$search: query}}).skip(page * pageSize).limit(pageSize);
         if(!users){
@@ -64,6 +64,20 @@ class User{
         const newUser = await user.save();
         return newUser;
     }
+    addFriend = async (id: string, friendId: string) => {
+        const user = await UserModel.findById(id);
+        if(!user){
+            return null;
+        }
+        if(!Types.ObjectId.isValid(friendId)){
+            return null;
+        }
+        const friendObjectId = new Types.ObjectId(friendId)
+        user.friends.push(friendObjectId);
+        const newUser = await user.save();
+        return newUser;
+    }
+  
     delete = async (id: string) => {
         const user = await UserModel.findById(id);
         if(!user){
@@ -72,6 +86,39 @@ class User{
         user.isDeleted = true;
         const newUser = await user.save();
         return newUser;
+    }
+    removeFriend = async (id: string, friendId: string) => {
+        const user = await UserModel.findById(id);
+        if(!user){
+            return null;
+        }
+        if(!Types.ObjectId.isValid(friendId)){
+            return null;
+        }
+        const friendObjectId = new Types.ObjectId(friendId)
+        user.friends = user.friends.filter(friend => !friend.equals(friendObjectId));
+        const newUser = await user.save();
+        return newUser;
+    }
+    getFriends = async (id: string) => {
+        const user = await UserModel.findById(id).populate('friends').exec();
+        if(!user){
+            return null;
+        }
+        const friends = user?.friends;
+        const friendIds = friends?.map(friend => friend._id);
+        const friendUsers = await UserModel.find({_id: {$in: friendIds}});
+        if(!friendUsers || friendUsers.length === 0){
+            return null;
+        }
+        return friendUsers;
+    }
+    findMany = async (ids: string[]) => {
+        const users = await UserModel.find({_id: {$in: ids}});
+        if(!users){
+            return null;
+        }
+        return users;
     }
 }
 

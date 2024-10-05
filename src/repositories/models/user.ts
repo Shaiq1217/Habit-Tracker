@@ -21,7 +21,7 @@ const UserSchema: Schema = new Schema(
     points: { type: Number, default: 0 },
     avatar: { type: String, default: '' },
     habits: { type: [Types.ObjectId], default: [], ref: 'Habit' },
-    friends: { type: [Types.ObjectId], default: [], ref: 'User' },
+    friends: { type: [Types.ObjectId], default: [], ref: 'Friend' },
     isDeleted: { type: Boolean, default: false },
   },
   {
