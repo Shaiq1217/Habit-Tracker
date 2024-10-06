@@ -21,11 +21,9 @@ class User{
     }
     getAll = async (req: Request, res: Response) => {
         const {page, pageSize} = req.query;
-        const pageInt = parseInt(page as string) || 1;
-        const pageSizeInt = parseInt(pageSize as string) || 10; 
         const detail = req.query.detail as string as unknown as boolean;
-        const allUsers = await userServices.getAll(pageInt, pageSizeInt, detail);
-        if(!allUsers || allUsers.data.data.length === 0){
+        const allUsers = await userServices.getAll(parseInt(page as string), parseInt(pageSize as string), detail);
+        if(!allUsers || allUsers.data.length === 0){
             return res.status(404).json(allUsers);
         }
         return res.status(200).json(allUsers);
@@ -48,7 +46,8 @@ class User{
         return res.status(200).json(deletedUser);
     }
     addHabit = async (req: Request, res: Response) => {
-        const {userId, habitId} = req.body;
+        const userId = req.user;
+        const { habitId } = req.body;
         const habit = await userServices.addHabit(userId, habitId);
         if(!habit.status){
             return res.status(400).json(habit);

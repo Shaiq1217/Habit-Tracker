@@ -5,7 +5,7 @@ import { Types } from "mongoose";
 
 class Friend{
     getFriends = async (req: Request, res: Response) => {
-        const userId = req.params.userId
+        const userId = req.user;
         const friends = await friendServices.getFriends(userId);
         if(!friends.status){
             return res.status(400).json(friends);
@@ -14,10 +14,11 @@ class Friend{
     }
 
     createFriend = async (req: Request, res: Response) => {
-        if(req.body.receiver == req.params.id){
+        const userId = req.user
+        if(req.body.receiver == userId){
             return res.status(400).json({status: false, message: 'You cannot send friend request to yourself'});
         }
-        const requestor = new Types.ObjectId(req.params.id);
+        const requestor = new Types.ObjectId(userId);
         const {receiver, status} = req.body;
         const friend : Partial<IFriend> = {requestor, receiver, status};
         const newFriend = await friendServices.create(friend);
@@ -37,7 +38,8 @@ class Friend{
         return res.status(200).json(status);
     }
     acceptFriend = async (req: Request, res: Response) => {
-        const {reciever, requestor} = req.params;
+        const requestor = req.user;
+        const {reciever} = req.params;
         const friend = await friendServices.acceptFriend(reciever, requestor);
         if(!friend.status){
             return res.status(400).json(friend);

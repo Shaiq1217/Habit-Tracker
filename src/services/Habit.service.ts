@@ -4,6 +4,7 @@ import { IHabit } from "../repositories/models/habit.js";
 import {Types} from "mongoose";
 import userServices from "./User.service.js";
 import _ from 'lodash';
+import { DEFAULT_LIMIT, DEFAULT_PAGE } from "../common/constants.js";
 
 class HabitService {
     get = async (id: string) : Promise<IResponse<IHabit>>=> {
@@ -19,59 +20,38 @@ class HabitService {
         }
         return {status: true, data: habit, message: 'Habit found'};
     }
-    getAll = async (page: number, pageSize: number) : Promise<IResponse<{habits: IHabit[], page: number, pageSize: number}>> => {  
-        let pageStart = page || 1;
-        let totalPageSize = pageSize || 10;
-        
-        if(pageStart < 1) {
-            pageStart = 1;
-        }
-        if(totalPageSize < 1) {
-            totalPageSize = 10;
-        }
-
-        const data = await habitRepository.findAll(pageStart, totalPageSize);
+    getAll = async (page: number = DEFAULT_PAGE, pageSize: number = DEFAULT_LIMIT) : Promise<IResponse<IHabit[]>> => {  
+        const data = await habitRepository.findAll(page, pageSize);
         if (!data || data.length === 0) {
             return {status: false, message: 'No habits found'};
         }
-        const activeHabits = data.filter(habit => habit.isDeleted);
+        const activeHabits = data.filter(habit => !habit.isDeleted);
         if(activeHabits.length === 0){
             return {status: false, message: 'No active habits found'};
         }
-        const sanitizedHabits = activeHabits.map(habit => _.omit(habit.toObject(), ['updatedAt', 'createdAt', 'isDeleted']));
-        return {data : {habits: sanitizedHabits, page: pageStart, pageSize: totalPageSize}, status: true, message: 'Habits found'};
+        const sanitizedHabits = activeHabits.map(habit => _.omit(habit, ['updatedAt', 'createdAt', 'isDeleted']));
+        return {data : sanitizedHabits, page, pageSize, status: true, message: 'Habits found'};
     }
 
 
-    search = async (query: string, page: number, pageSize: number): Promise<IResponse<{habits: IHabit[], page: number, pageSize: number}>> => {
-
-        let pageStart = page || 1;
-        let totalPageSize = pageSize || 10;
-
-        if(pageStart < 1) {
-            pageStart = 1;
-        }
-        if(totalPageSize < 1) {
-            totalPageSize = 10;
-        }
-
-        const data = await habitRepository.search(query, page, pageSize);
-        if (!data || data.length === 0) {
-            return {status: false, message: 'No habits found'};
-        }
-        const activeHabits = data.filter(habit => habit.isDeleted);
-        if(activeHabits.length === 0){
-            return {status: false, message: 'No active habits found'};
-        }
-        const sanitizedHabits = activeHabits.map(habit => _.omit(habit.toObject(), ['updatedAt', 'createdAt', 'isDeleted']));
-        return {data : {habits: sanitizedHabits, page: pageStart, pageSize: totalPageSize}, status: true, message: 'Habits found'};
+    search = async (query: string, page: number = DEFAULT_PAGE, pageSize: number = DEFAULT_LIMIT): 
+        Promise<IResponse<IHabit[]>> => {
+            const data = await habitRepository.search(query, page, pageSize);
+            if (!data || data.length === 0) {
+                return {status: false, message: 'No habits found'};
+            }
+            const activeHabits = data.filter(habit => habit.isDeleted);
+            if(activeHabits.length === 0){
+                return {status: false, message: 'No active habits found'};
+            }
+            const sanitizedHabits = activeHabits.map(habit => _.omit(habit.toObject(), ['updatedAt', 'createdAt', 'isDeleted']));
+            return {data: sanitizedHabits, page, pageSize, status: true, message: 'Habits found'};
     }
     create = async (data: IHabit) : Promise<IResponse<IHabit>> => {
         // check if userID is valid
         if(!Types.ObjectId.isValid(data.userId)) return {status: false, message: 'Invalid user id'};
         // check if user exists
         const doesExist = await userServices.getById(data.userId.toString());
-       
         if(!doesExist.status) {
             return {status: false, message: 'User not found'};
         }

@@ -6,6 +6,8 @@ import { JWT_SECRET, SALT_ROUNDS } from "../common/secrets.js";
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 
+
+  
 class Auth {
     register = async (email: string, password: string, username: string) : Promise<IResponse<IUser>> => {
         let user = await userRepository.find(email, username);
@@ -58,6 +60,7 @@ class Auth {
         //verify token and update user
         return {status: true, message: 'Email verified'};
     }
+    
 }
 const authServices = new Auth();
 export default authServices;

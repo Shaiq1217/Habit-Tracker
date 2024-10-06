@@ -64,19 +64,7 @@ class User{
         const newUser = await user.save();
         return newUser;
     }
-    addFriend = async (id: string, friendId: string) => {
-        const user = await UserModel.findById(id);
-        if(!user){
-            return null;
-        }
-        if(!Types.ObjectId.isValid(friendId)){
-            return null;
-        }
-        const friendObjectId = new Types.ObjectId(friendId)
-        user.friends.push(friendObjectId);
-        const newUser = await user.save();
-        return newUser;
-    }
+
   
     delete = async (id: string) => {
         const user = await UserModel.findById(id);
@@ -87,19 +75,7 @@ class User{
         const newUser = await user.save();
         return newUser;
     }
-    removeFriend = async (id: string, friendId: string) => {
-        const user = await UserModel.findById(id);
-        if(!user){
-            return null;
-        }
-        if(!Types.ObjectId.isValid(friendId)){
-            return null;
-        }
-        const friendObjectId = new Types.ObjectId(friendId)
-        user.friends = user.friends.filter(friend => !friend.equals(friendObjectId));
-        const newUser = await user.save();
-        return newUser;
-    }
+ 
     getFriends = async (id: string) => {
         const user = await UserModel.findById(id).populate('friends').exec();
         if(!user){
