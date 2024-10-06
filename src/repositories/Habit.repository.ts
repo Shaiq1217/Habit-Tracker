@@ -19,7 +19,7 @@ class HabitRepository {
     }
 
     findAll = async (page: number, pageSize: number) : Promise<IHabit[]> => {
-        const habits = await HabitModel.find({}).skip((page - 1) * pageSize).limit(pageSize);
+        const habits = await HabitModel.find({}).skip((page - 1) * pageSize).limit(pageSize).lean();
         if(!habits){
             return [];
         }

@@ -1,13 +1,10 @@
-import jwt from "jsonwebtoken";
 import userRepository from "../repositories/User.repository.js";
-import { compareSync, hashSync} from 'bcrypt';
+import { hashSync} from 'bcrypt';
 import _ from 'lodash';
 import { IResponse } from "../common/types/shared.js";
 import { IUser } from "../repositories/models/user.js";
-import { SALT_ROUNDS } from "../common/secrets.js";
 import habitService from "./Habit.service.js";
-import friendRepository from "../repositories/Friend.repository.js";
-import { IFriend } from "../repositories/models/friends.js";
+import { DEFAULT_LIMIT, DEFAULT_PAGE } from "../common/constants.js";
 class User{
     me = async (username: any): Promise<IResponse<IUser>> => {
         const user = await userRepository.find(username);
@@ -43,17 +40,18 @@ class User{
     }
     
     
-    getAll = async (page: number, pageSize: number, detail?: boolean): Promise<IResponse<{data: IUser[], page: Number, pageSize: Number}>> => {
-        const users = await userRepository.findAll(page, pageSize);
-        if(!users || users.length === 0){
-            return {status: false, message: 'No users found'};
-        }
-        const activeUsers = users.filter(user => !user.isDeleted);
-        if(activeUsers.length === 0){
-            return {status: false, message: 'No active users found'};
-        }
-        const usersData = activeUsers.map(user => _.pick(user.toObject(), ['email', 'username', 'createdAt', 'isDeleted']));
-        return {status: true, data:{data: detail ? usersData : activeUsers, page, pageSize}, message: 'Users found'};
+    getAll = async (page: number = DEFAULT_PAGE, pageSize: number = DEFAULT_LIMIT, detail?: boolean): 
+        Promise<IResponse<IUser[]>> => {
+            const users = await userRepository.findAll(page, pageSize);
+            if(!users || users.length === 0){
+                return {status: false, message: 'No users found'};
+            }
+            const activeUsers = users.filter(user => !user.isDeleted);
+            if(activeUsers.length === 0){
+                return {status: false, message: 'No active users found'};
+            }
+            const usersData = activeUsers.map(user => _.pick(user.toObject(), ['email', 'username', 'createdAt', 'isDeleted']));
+            return {status: true, data: detail ? usersData : activeUsers, page, pageSize, message: 'Users found'};
     }
     getMultiple = async (ids: string[]): Promise<IResponse<IUser[]>> => {
         const users = await userRepository.findMany(ids);
@@ -101,31 +99,6 @@ class User{
         }
         return {status: true, message: 'Habit added to user'};
     }
-
-    addFriend = async (userId: string, friendId: string) : Promise<IResponse<IUser>> => {
-        const friend = await friendRepository.findById(friendId);
-        if(!friend){
-            return {status: false, message: 'Friend Request not found'};
-        }
-        const user = await userRepository.addFriend(userId, friendId);
-        if(!user){
-            return {status: false, message: 'User not found'};
-        }
-        return {status: true, message: 'Friend added to user'};
-    }
-    removeFriend = async (userId: string, friendId: string) : Promise<IResponse<IUser>> => {
-        const friend = await friendRepository.findById(friendId);
-        if(!friend){
-            return {status: false, message: 'Friend Request not found'};
-        }
-        const removeFriendFromUser = await userRepository.removeFriend(userId, friendId);
-        const removeUserFromFriend = await userRepository.removeFriend(friendId, userId);
-        if(!removeFriendFromUser || !removeUserFromFriend){
-            return {status: false, message: `${removeFriendFromUser ? 'User' : 'Friend'}not found`};
-        }
-        return {status: true, message: 'Friend removed from user'};
-    }
-
 }
 
 const userServices = new User();

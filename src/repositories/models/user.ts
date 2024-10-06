@@ -9,6 +9,7 @@ export interface IUser extends Document {
     avatar: string;
     habits: Types.ObjectId[];
     friends: Types.ObjectId[];
+    posts: Types.ObjectId[];
     isDeleted: boolean;
 }
 
@@ -22,6 +23,7 @@ const UserSchema: Schema = new Schema(
     avatar: { type: String, default: '' },
     habits: { type: [Types.ObjectId], default: [], ref: 'Habit' },
     friends: { type: [Types.ObjectId], default: [], ref: 'Friend' },
+    posts: { type: [Types.ObjectId], default: [], ref: 'Post' },
     isDeleted: { type: Boolean, default: false },
   },
   {

@@ -1,4 +1,6 @@
+import { Types } from "mongoose";
 import FriendModel, { IFriend } from "./models/friends.js";
+import UserModel from "./models/user.js";
 
 class Friend {
     findOne = async (data: Partial<IFriend>): Promise<IFriend | null> => {
@@ -43,10 +45,35 @@ class Friend {
         const friend = await FriendModel.findByIdAndUpdate(id, data, {new: true});
         return friend;
     }
+    addFriend = async (id: string, friendId: string) => {
+        const user = await UserModel.findById(id);
+        if(!user){
+            return null;
+        }
+        if(!Types.ObjectId.isValid(friendId)){
+            return null;
+        }
+        const friendObjectId = new Types.ObjectId(friendId)
+        user.friends.push(friendObjectId);
+        const newUser = await user.save();
+        return newUser;
+    }
+    removeFriend = async (id: string, friendId: string) => {
+        const user = await UserModel.findById(id);
+        if(!user){
+            return null;
+        }
+        if(!Types.ObjectId.isValid(friendId)){
+            return null;
+        }
+        const friendObjectId = new Types.ObjectId(friendId)
+        user.friends = user.friends.filter(friend => !friend.equals(friendObjectId));
+        const newUser = await user.save();
+        return newUser;
+    }
     deleteAll = async () => {
         const status = await FriendModel.deleteMany({});
         return status;
-
     }
 
 }

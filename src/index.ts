@@ -21,8 +21,7 @@ app.use(express.json());
 app.use(logService.logging());
 app.use(routes);
 
-// Start server
-const server = app.listen(port, host, () => {
+app.listen(port, host, () => {
   logService.info(`Server running on http://${host}:${port}`);
 });
 
