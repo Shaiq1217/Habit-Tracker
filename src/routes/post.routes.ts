@@ -1,5 +1,5 @@
 import {Router, Response, Request} from 'express';
-import postController from '../controllers/PostController.js';
+import postController from '../controllers/Post.controller.js';
 const router = Router();
 
 router.post('/', async (req: Request, res: Response) => {

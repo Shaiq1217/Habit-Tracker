@@ -6,13 +6,25 @@ import { Types } from "mongoose";
 class Friend{
     getFriends = async (req: Request, res: Response) => {
         const userId = req.user;
-        const friends = await friendServices.getFriends(userId);
+        const page = parseInt(req.query.page as string) || 1;
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
+        const friends = await friendServices.getFriends(userId, page, pageSize);
         if(!friends.status){
             return res.status(400).json(friends);
         }
         return res.status(200).json(friends);
     }
+    getFriendRequests = async (req: Request, res: Response) => {
+        const userId = req.user;
+        const page = parseInt(req.query.page as string) || 1;
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
 
+        const friends = await friendServices.getFriendRequests(userId, page, pageSize);
+        if(!friends.status){
+            return res.status(400).json(friends);
+        }
+        return res.status(200).json(friends);
+    }
     createFriend = async (req: Request, res: Response) => {
         const userId = req.user
         if(req.body.receiver == userId){
@@ -49,7 +61,7 @@ class Friend{
     getAllFriends = async (req: Request, res: Response) => {
         const friends = await friendServices.getAllFriends();
         if(!friends.status){
-            return res.status(400).json(friends);
+            return res.status(404).json(friends);
         }
         if(!friends.data.length){
             return res.status(404).json(friends);

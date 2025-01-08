@@ -5,8 +5,11 @@ const router = Router();
 router.get('/', async (req: Request, res: Response) => {
     await friendController.getAllFriends(req, res);
 });
-router.get('/', async (req: Request, res: Response) => {
+router.get('/user', async (req: Request, res: Response) => {
     await friendController.getFriends(req, res);
+});
+router.get('/requests', async (req: Request, res: Response) => {
+    await friendController.getFriendRequests(req, res);
 });
 router.post('/', async (req: Request, res: Response) => {
     await friendController.createFriend(req, res);

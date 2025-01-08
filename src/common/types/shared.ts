@@ -15,6 +15,7 @@ export type IResponse<T> = {
     data?: T;
     page?: number;
     pageSize?: number;
+    totalCount?: number;
 };
 
 export type JwtPayload = {

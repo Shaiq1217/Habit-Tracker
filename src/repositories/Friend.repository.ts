@@ -25,6 +25,24 @@ class Friend {
         });
         return friends;
     }
+    findRequest = async (id: string, page: number, pageSize: number): Promise<IFriend[]> => {
+        const skip = (page - 1) * pageSize;
+        const friends = await FriendModel.find({
+          receiver: id,
+          status: 'pending'
+        })
+        .skip(skip)
+        .limit(pageSize);
+        return friends;
+      };
+    countRequests = async (id: string): Promise<number> => {
+        const count = await FriendModel.countDocuments({
+          receiver: id,
+          status: 'pending'
+        });
+        return count;
+      };
+
     findById = async (id: string): Promise<IFriend | null> => {
         const friend = await FriendModel.findById(id);
         if (!friend) {
@@ -32,8 +50,10 @@ class Friend {
         }
         return friend;
     }
-    findAll = async (): Promise<IFriend[]> => {
-        const friends = await FriendModel.find({});
+    findAll = async (page: number, pageSize: number): Promise<IFriend[]> => {
+        const skip = (page - 1) * pageSize;
+        const friends = await FriendModel.find({}).skip(skip)
+        .limit(pageSize);;
         return friends;
     }
     create = async (data: Partial<IFriend>) : Promise<IFriend> => {

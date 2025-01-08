@@ -61,8 +61,44 @@ class Friend {
     }
     return { status: true, data: friendsInfo.data, message: "Friends found", page, pageSize };
   };
-  getAllFriends = async (): Promise<IResponse<IFriend[]>> => {
-    const friends = await friendRepository.findAll();
+  
+  getFriendRequests = async (
+    id: string, 
+    page: number = DEFAULT_PAGE, 
+    pageSize: number = DEFAULT_LIMIT
+  ): Promise<IResponse<IFriend[]>> => {
+    const user = await userServices.getById(id);
+    if (!user.status) {
+      return { status: false, message: "User not found" };
+    }
+  
+    const totalRequests = await friendRepository.countRequests(user.data._id.toString());
+    if (totalRequests === 0) {
+      return { status: false, message: "No friend requests found" };
+    }
+  
+    const friends = await friendRepository.findRequest(
+      user.data._id.toString(),
+      page,
+      pageSize
+    );
+  
+    return {
+      status: true,
+      data: friends,
+      message: "Friend requests found",
+      page,
+      pageSize,
+      totalCount: totalRequests || 0,
+    };
+  };
+  
+  getAllFriends = async (
+    page: number = DEFAULT_PAGE, 
+    pageSize: number = DEFAULT_LIMIT
+  ): Promise<IResponse<IFriend[]>> => {
+
+    const friends = await friendRepository.findAll(page, pageSize);
     if (!friends) {
       return { status: false, message: "Failed to get friends" };
     }
@@ -73,8 +109,12 @@ class Friend {
       status: true,
       data: friends,
       message: "Friends retrieved successfully",
+      page,
+      pageSize,
+      totalCount: friends.length,
     };
   };
+
   acceptFriend = async (
     receiverId: string,
     requestorId: string
