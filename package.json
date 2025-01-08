@@ -1,0 +1,34 @@
+{
+  "name": "habit-tracker",
+  "version": "1.0.0",
+  "description": "This is a habit tracker app that uses gamification to help users stay motivated and consistent with their habits. The app allows users to create habits, set goals, and track their progress. Users can earn points for completing habits and use those points to unlock rewards. The app also includes a social feature that allows users to connect with friends and compete with each other.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run": "node dist/index.js",
+    "start": "nodemon dist/index.js"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "config": "^3.3.12",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-async-errors": "^3.1.1",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "mongoose": "^8.9.3",
+    "secrets": "^1.1.5",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.19.1"
+  }
+}
